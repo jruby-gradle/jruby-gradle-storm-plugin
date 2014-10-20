@@ -1,11 +1,19 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-
 buildscript {
     repositories { jcenter() }
     dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5' }
 }
+
+plugins {
+    id "com.github.jruby-gradle.jar" version "0.1.2"
+    // https://github.com/jruby-gradle/jruby-gradle-jar-plugin/issues/18
+    id "com.github.jruby-gradle.base" version "0.1.3"
+    id "com.github.johnrengelman.shadow" version "1.1.2"
+}
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
 
 group = 'com.github.jruby-gradle'
 version = '0.1.0'
@@ -18,6 +26,11 @@ sourceCompatibility = '1.7'
 repositories {
     jcenter()
     mavenLocal()
+
+    // Repositories for Storm dependencies
+    mavenCentral()
+    maven { url 'http://clojars.org/repo/' }
+    maven { url 'http://conjars.org/repo/' }
 }
 
 configurations {
@@ -28,9 +41,13 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-plugin', version: '0.1.+'
-    compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-jar-plugin', version: '0.1.+'
-    compile group: 'com.github.jruby-gradle', name: 'redstorm', version: '0.0.14-SNAPSHOT'
+    compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-plugin', version: '0.1.3+'
+    compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-jar-plugin', version: '0.1.2+'
+    compile group: 'com.github.jruby-gradle', name: 'redstorm', version: '0.7.0-SNAPSHOT'
+
+  jrubyEmbeds group: 'org.apache.storm',
+           name: 'storm-core',
+        version: '0.9.1-incubating'
 
     testCompile ("org.spockframework:spock-core:0.7-groovy-${gradle.gradleVersion.startsWith('1.')?'1.8':'2.0'}") {
         exclude module : 'groovy-all'
@@ -51,6 +68,34 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 artifacts {
     archives sourcesJar
+}
+
+task localTest(type: JavaExec) {
+  classpath configurations.compile.asPath
+  main '-jar'
+  args shadowJar.archivePath, 'local', 'hello_world_topology.rb'
+  dependsOn shadowJar
+}
+
+shadowJar {
+    exclude '*.sw*', '*.gitkeep', '*.md'
+
+    from 'topologies'
+
+    // note that zipTree call is wrapped in closure so that configuration
+    // is only resolved at execution time. This will take the embeds
+    // from within the `jrubyEmbeds` configuration and dump them into the war
+    from {
+        project.configurations.jrubyEmbeds.collect {
+            project.zipTree(it)
+        }
+    }
+
+    jruby {
+        // Use the default GEM installation directory
+        defaultGems()
+        mainClass 'redstorm.TopologyLauncher'
+    }
 }
 
 // Ensure we don't fail in CI or on a system without these values set in
