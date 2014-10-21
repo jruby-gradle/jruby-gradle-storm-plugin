@@ -21,7 +21,7 @@ version = '0.1.0'
 if (System.env.RELEASE != '1') {
     version = "${version}-SNAPSHOT"
 }
-sourceCompatibility = '1.7'
+sourceCompatibility = 1.7
 
 repositories {
     jcenter()
@@ -34,7 +34,7 @@ repositories {
 }
 
 configurations {
-    compile.exclude module: 'storm-core'
+    jrubyStormLocal
 }
 
 dependencies {
@@ -43,11 +43,13 @@ dependencies {
 
     compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-plugin', version: '0.1.3+'
     compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-jar-plugin', version: '0.1.2+'
-    compile group: 'com.github.jruby-gradle', name: 'redstorm', version: '0.7.0-SNAPSHOT'
 
-  jrubyEmbeds group: 'org.apache.storm',
-           name: 'storm-core',
-        version: '0.9.1-incubating'
+    jrubyStormLocal group: 'com.github.jruby-gradle', name: 'redstorm', version: '0.7.0-SNAPSHOT'
+
+    jrubyStormLocal group: 'org.apache.storm',
+            name: 'storm-core',
+            version: '0.9.1-incubating',
+            force: true
 
     testCompile ("org.spockframework:spock-core:0.7-groovy-${gradle.gradleVersion.startsWith('1.')?'1.8':'2.0'}") {
         exclude module : 'groovy-all'
@@ -71,10 +73,9 @@ artifacts {
 }
 
 task localTest(type: JavaExec) {
-  classpath configurations.compile.asPath
-  main '-jar'
-  args shadowJar.archivePath, 'local', 'hello_world_topology.rb'
-  dependsOn shadowJar
+  classpath configurations.jrubyStormLocal.asPath
+  main 'redstorm.TopologyLauncher'
+  args 'local', './topologies/hello_world_topology'
 }
 
 shadowJar {
