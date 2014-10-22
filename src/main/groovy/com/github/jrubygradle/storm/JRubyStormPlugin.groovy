@@ -33,7 +33,7 @@ class JRubyStormPlugin implements Plugin<Project> {
             group JRubyPlugin.TASK_GROUP_NAME
             description 'Create a JRuby-based Storm topology'
             dependsOn project.tasks.jrubyPrepare
-            exclude '*.sw*', '*.gitkeep', '*.md'
+            exclude '*.sw*', '*.gitkeep', '*.md', 'META-INF/BCKEY*'
 
             into('topologies') {
               from 'topologies'
