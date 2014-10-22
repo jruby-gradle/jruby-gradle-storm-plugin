@@ -34,7 +34,8 @@ repositories {
 }
 
 configurations {
-    jrubyStormLocal
+    jrubyStorm
+    jrubyStormLocal.extendsFrom jrubyStorm
 }
 
 dependencies {
@@ -44,7 +45,11 @@ dependencies {
     compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-plugin', version: '0.1.3+'
     compile group: 'com.github.jruby-gradle', name: 'jruby-gradle-jar-plugin', version: '0.1.2+'
 
-    jrubyStormLocal group: 'com.github.jruby-gradle', name: 'redstorm', version: '0.7.0-SNAPSHOT'
+    jrubyStorm (group: 'com.github.jruby-gradle',
+                name: 'redstorm',
+                version: '0.7.0-SNAPSHOT') {
+        exclude module: 'storm-core'
+    }
 
     jrubyStormLocal group: 'org.apache.storm',
             name: 'storm-core',
@@ -85,9 +90,9 @@ shadowJar {
 
     // note that zipTree call is wrapped in closure so that configuration
     // is only resolved at execution time. This will take the embeds
-    // from within the `jrubyEmbeds` configuration and dump them into the war
+    // from within the `jrubyStorm` configuration and dump them into the war
     from {
-        project.configurations.jrubyEmbeds.collect {
+        project.configurations.jrubyStorm.collect {
             project.zipTree(it)
         }
     }
