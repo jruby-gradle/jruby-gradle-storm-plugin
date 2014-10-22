@@ -21,6 +21,7 @@ class JRubyStormLocal extends JavaExec {
 
   JRubyStormLocal() {
     super()
+    super.dependsOn project.tasks.jrubyPrepare
     super.setMain 'redstorm.TopologyLauncher'
   }
 
