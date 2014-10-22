@@ -42,15 +42,6 @@ class JRubyStormPlugin implements Plugin<Project> {
               from 'bolts'
             }
 
-            // note that zipTree call is wrapped in closure so that configuration
-            // is only resolved at execution time. This will take the embeds
-            // from within the `jrubyStorm` configuration and dump them into the war
-            from {
-                project.configurations.jrubyStorm.collect {
-                    project.zipTree(it)
-                }
-            }
-
             jruby {
                 // Use the default GEM installation directory
                 defaultGems()
@@ -63,6 +54,11 @@ class JRubyStormPlugin implements Plugin<Project> {
 
         project.afterEvaluate {
           JRubyStormLocal.updateDependencies(project)
+
+          // Add the jrubyStorm configuration to the jrubyStorm task to make
+          // sure ShadowJar will unzip/incorporate the right data unpacked into
+          // the artifact
+          project.tasks.jrubyStorm.configurations.add(project.configurations.getByName('jrubyStorm'))
         }
     }
 
