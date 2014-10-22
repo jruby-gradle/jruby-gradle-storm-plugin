@@ -12,7 +12,7 @@ class JRubyStormLocal extends JavaExec {
 
   static void updateDependencies(Project project) {
     project.tasks.withType(JRubyStormLocal) { JRubyStormLocal t ->
-      t.classpath project.configurations.jrubyStormLocal.asPath
+      t.classpath project.configurations.jrubyStormLocal
     }
   }
 
