@@ -1,9 +1,9 @@
 package com.github.jrubygradle.storm
 
-import org.gradle.api.tasks.bundling.Jar
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 /**
  * @author R. Tyler Croy
  */
-class JRubyStorm extends Jar {
+class JRubyStorm extends ShadowJar {
 }
