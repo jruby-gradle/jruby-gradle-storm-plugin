@@ -16,6 +16,9 @@ class JRubyStormLocal extends JavaExec {
     }
   }
 
+  @Input
+  String topology
+
   JRubyStormLocal() {
     super()
     super.setMain 'redstorm.TopologyLauncher'
@@ -23,7 +26,10 @@ class JRubyStormLocal extends JavaExec {
 
   @Override
   void exec() {
-    super.setArgs(['local'] + getArgs())
+    super.setArgs(['local', topology])
+    super.setEnvironment 'GEM_HOME' : project.jruby.gemInstallDir,
+                   'GEM_PATH' : project.jruby.gemInstallDir,
+                   'HOME' : System.env.HOME
     super.exec()
   }
 }
