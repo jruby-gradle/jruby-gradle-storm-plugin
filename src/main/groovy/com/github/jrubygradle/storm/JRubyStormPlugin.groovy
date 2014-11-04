@@ -83,12 +83,13 @@ class JRubyStormPlugin implements Plugin<Project> {
             exclude module: 'storm-core'
         }
 
-        // Forcing 0.9.1 because of API incompatibilities with redstorm and
-        // Storm 0.9.2 which have yet to be resolved
+        // Relying on storm-0.9.2 even though we're compiling against 0.9.1
+        // There are API incompatibilities between the two versions, but
+        // specifying 0.9.2 here allows the use of storm-kafka 0.9.2-incubating
+        // and other "modern" storm libraries in the topologies
         jrubyStormLocal group: 'org.apache.storm',
                 name: 'storm-core',
-                version: '0.9.1-incubating',
-                force: true
+                version: '0.9.2-incubating'
       }
     }
 }
