@@ -77,16 +77,23 @@ class JRubyStormPlugin implements Plugin<Project> {
     @PackageScope
     void updateDependencies(Project project) {
       project.dependencies {
+        // Excluding storm-core for the configuration where we create the
+        // topology jar. This is because the running storm cluster will provide
+        // the classes from this dependency. If we attempt to includ ethis, the
+        // storm classes will not initialize properly and you'll get exceptions
+        // like: "cannot load or initialize class backtype.storm.LocalCluster
         jrubyStorm (group: 'com.github.jruby-gradle',
                 name: 'redstorm',
-                version: '0.7.+') {
+                version: '0.7.1+') {
             exclude module: 'storm-core'
         }
 
-        // Relying on storm-0.9.2 even though we're compiling against 0.9.1
-        // There are API incompatibilities between the two versions, but
-        // specifying 0.9.2 here allows the use of storm-kafka 0.9.2-incubating
-        // and other "modern" storm libraries in the topologies
+        // We must pull in bouncycastle since it's not included as a proper
+        // dependency for the jruby-complete.jar that gets bundled into the
+        // topology jar. Similar code exists in the base plugin for the
+        // JRubyExec task
+        jrubyStorm "org.bouncycastle:bcprov-jdk15on:${project.jruby.bouncycastleVersion}"
+
         jrubyStormLocal group: 'org.apache.storm',
                 name: 'storm-core',
                 version: '0.9.2-incubating'
