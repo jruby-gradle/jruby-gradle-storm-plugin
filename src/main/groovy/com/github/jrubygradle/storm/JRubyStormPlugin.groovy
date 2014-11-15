@@ -28,7 +28,6 @@ class JRubyStormPlugin implements Plugin<Project> {
           jrubyStormLocal.extendsFrom jrubyStorm
         }
 
-
         project.task('jrubyStorm', type: ShadowJar) {
             group JRubyPlugin.TASK_GROUP_NAME
             description 'Create a JRuby-based Storm topology'
@@ -37,9 +36,6 @@ class JRubyStormPlugin implements Plugin<Project> {
 
             into('topologies') {
               from 'topologies'
-            }
-            into('bolts') {
-              from 'bolts'
             }
 
             jruby {
