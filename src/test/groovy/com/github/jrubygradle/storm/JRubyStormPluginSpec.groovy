@@ -78,5 +78,22 @@ class JRubyStormPluginSpec extends Specification {
             d.name == 'storm-core' && d.version == version
         }
     }
+
+
+    def "setting storm.redstormVersion should add the right jrubyStorm dependnecy"() {
+        given:
+        String version = '0.1.1'
+        def dependencies = project.configurations.findByName('jrubyStorm').dependencies
+
+        when:
+        project.storm.redstormVersion version
+        project.evaluate()
+
+        then:
+        project.storm.redstormVersion == version
+        dependencies.matching { Dependency d ->
+            d.name == 'redstorm' && d.version == version
+        }
+    }
 }
 

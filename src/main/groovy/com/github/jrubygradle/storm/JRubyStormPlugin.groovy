@@ -26,7 +26,6 @@ class JRubyStormPlugin implements Plugin<Project> {
           jrubyStormLocal.extendsFrom jrubyStorm
         }
 
-
         project.task('jrubyStorm', type: ShadowJar) {
             group JRubyPlugin.TASK_GROUP_NAME
             description 'Create a JRuby-based Storm topology'
@@ -66,7 +65,6 @@ class JRubyStormPlugin implements Plugin<Project> {
         // jcenter contains the redstorm and gradle dependencies
         jcenter()
         // Repositories for Storm dependencies
-        mavenCentral()
         maven { url 'http://clojars.org/repo/' }
         maven { url 'http://conjars.org/repo/' }
       }
@@ -80,9 +78,7 @@ class JRubyStormPlugin implements Plugin<Project> {
         // the classes from this dependency. If we attempt to includ ethis, the
         // storm classes will not initialize properly and you'll get exceptions
         // like: "cannot load or initialize class backtype.storm.LocalCluster
-        jrubyStorm (group: 'com.github.jruby-gradle',
-                name: 'redstorm',
-                version: '0.7.1+') {
+        jrubyStorm ("com.github.jruby-gradle:redstorm:${project.storm.redstormVersion}") {
             exclude module: 'storm-core'
         }
 
