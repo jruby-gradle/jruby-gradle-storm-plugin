@@ -1,12 +1,20 @@
 buildscript {
-    repositories { jcenter() }
+    repositories {
+        jcenter()
+
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
 
     dependencies {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2"
+        classpath "org.ysb33r.gradle:gradletest:0.5.4"
     }
 }
 
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'org.ysb33r.gradletest'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
@@ -43,6 +51,10 @@ test {
         showStandardStreams = true
         exceptionFormat "full"
     }
+}
+
+gradleTest {
+    versions '2.0', '2.2', '2.4'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
