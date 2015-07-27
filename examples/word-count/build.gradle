@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath 'com.github.jruby-gradle:jruby-gradle-storm-plugin:0.2.0'
+    }
+}
+
+apply plugin: 'com.github.jruby-gradle.storm'
+
+import com.github.jrubygradle.storm.JRubyStorm
+
+jrubyStorm {
+    topology 'hello-topology.rb'
+}
