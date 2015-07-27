@@ -1,35 +1,44 @@
 package com.github.jrubygradle.storm
 
-import org.gradle.api.tasks.JavaExec
+import com.github.jrubygradle.JRubyExec
+
 import org.gradle.api.tasks.Input
 import org.gradle.api.Project
 
 
 /**
+ * JRubyStormLocal is a task for invoking the redstorm local topology mode for
+ * a given codebase
  */
-class JRubyStormLocal extends JavaExec {
+class JRubyStormLocal extends JRubyExec  {
+    static final String REDSTORM_MAIN = 'redstorm.TopologyLauncher'
 
-  static void updateDependencies(Project project) {
-    project.tasks.withType(JRubyStormLocal) { JRubyStormLocal t ->
-      t.classpath project.configurations.jrubyStormLocal
+    /** Update all the tasks in the project of type JRubyStormLocal with the
+     * appropriate classpath configuration
+     */
+    static void updateDependencies(Project project) {
+        project.tasks.withType(JRubyStormLocal) { JRubyStormLocal t ->
+            t.classpath project.configurations.jrubyStormLocal
+        }
     }
-  }
 
-  @Input
-  String topology
+    /** Path (relative or absolute) to the .rb file defining a Redstorm topology */
+    @Input
+    String topology
 
-  JRubyStormLocal() {
-    super()
-    super.dependsOn project.tasks.jrubyPrepare
-    super.setMain 'redstorm.TopologyLauncher'
-  }
+    JRubyStormLocal() {
+        super()
+        super.dependsOn project.tasks.jrubyPrepare
+    }
 
-  @Override
-  void exec() {
-    super.setArgs(['local', topology])
-    super.setEnvironment 'GEM_HOME' : project.jruby.gemInstallDir,
-                   'GEM_PATH' : project.jruby.gemInstallDir,
-                   'HOME' : System.env.HOME
-    super.exec()
-  }
+    @Override
+    void exec() {
+        /* Skip over JRubyExec's setMain which is too restrictive */
+        super.super.setMain REDSTORM_MAIN
+        /* forcefully overwrite any previous JRuby args, this way we're certain
+         * that we don't execute JRuby with -S or something like that
+         */
+        this.jrubyArgs = ['local', this.topology]
+        super.exec()
+    }
 }

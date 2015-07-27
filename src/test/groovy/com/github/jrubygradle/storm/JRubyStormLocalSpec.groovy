@@ -1,19 +1,27 @@
 package com.github.jrubygradle.storm
 
-import com.github.jrubygradle.JRubyPlugin
-import org.gradle.api.tasks.JavaExec
-
-import org.junit.Test
 import spock.lang.*
 
-import static org.gradle.api.logging.LogLevel.LIFECYCLE
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
 
 /**
- * @author R. Tyler Croy
  *
  */
 class JRubyStormLocalSpec extends Specification {
+    protected Project project
+
     void setup() {
+        project = ProjectBuilder.builder().build()
+        project.apply plugin: 'com.github.jruby-gradle.storm'
+    }
+
+    def "jrubyStormLocal task should be a proper instance"() {
+        when:
+        project.task('jrubyStormLocal', type: JRubyStormLocal)
+
+        then:
+        project.tasks.jrubyStormLocal instanceof JRubyStormLocal
     }
 }
 
