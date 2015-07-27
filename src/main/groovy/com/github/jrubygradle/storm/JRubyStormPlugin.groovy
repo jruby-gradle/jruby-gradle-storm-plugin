@@ -20,6 +20,8 @@ class JRubyStormPlugin implements Plugin<Project> {
         project.configurations.maybeCreate('jrubyStorm')
         project.configurations.maybeCreate('jrubyStormLocal')
 
+        project.extensions.create('storm', JRubyStormExtension)
+
         project.configurations {
           jrubyStormLocal.extendsFrom jrubyStorm
         }
@@ -45,16 +47,16 @@ class JRubyStormPlugin implements Plugin<Project> {
             //}
         }
 
-        updateRepositories(project)
-        updateDependencies(project)
-
         project.afterEvaluate {
-          JRubyStormLocal.updateDependencies(project)
+            updateRepositories(project)
+            updateDependencies(project)
 
-          // Add the jrubyStorm configuration to the jrubyStorm task to make
-          // sure ShadowJar will unzip/incorporate the right data unpacked into
-          // the artifact
-          project.tasks.jrubyStorm.configurations.add(project.configurations.getByName('jrubyStorm'))
+            JRubyStormLocal.updateDependencies(project)
+
+            // Add the jrubyStorm configuration to the jrubyStorm task to make
+            // sure ShadowJar will unzip/incorporate the right data unpacked into
+            // the artifact
+            project.tasks.jrubyStorm.configurations.add(project.configurations.getByName('jrubyStorm'))
         }
     }
 
@@ -84,9 +86,7 @@ class JRubyStormPlugin implements Plugin<Project> {
             exclude module: 'storm-core'
         }
 
-        jrubyStormLocal group: 'org.apache.storm',
-                name: 'storm-core',
-                version: '0.9.2-incubating'
+        jrubyStormLocal "org.apache.storm:storm-core:${project.storm.version}"
       }
     }
 }

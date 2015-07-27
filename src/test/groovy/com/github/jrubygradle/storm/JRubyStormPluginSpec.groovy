@@ -2,6 +2,7 @@ package com.github.jrubygradle.storm
 
 import com.github.jrubygradle.JRubyPlugin
 
+import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Jar
@@ -15,12 +16,10 @@ import static org.gradle.api.logging.LogLevel.LIFECYCLE
 import static org.junit.Assert.assertTrue
 
 /**
- * @author R. Tyler Croy
  *
  */
 class JRubyStormPluginSpec extends Specification {
-
-    def project
+    protected Project project
 
     void setup() {
         project = ProjectBuilder.builder().build()
@@ -29,30 +28,55 @@ class JRubyStormPluginSpec extends Specification {
 
     def "Basic sanity check"() {
         expect:
-            project.tasks.jrubyStorm instanceof Task
-            project.tasks.jrubyStorm.group == JRubyPlugin.TASK_GROUP_NAME
+        project.tasks.jrubyStorm instanceof Task
+        project.tasks.jrubyStorm.group == JRubyPlugin.TASK_GROUP_NAME
     }
 
     def "Check configurations exist"() {
-      given:
+        given:
         def configs = project.configurations
-      expect:
+
+        expect:
         configs.getByName('jrubyStorm')
         configs.getByName('jrubyStormLocal')
     }
 
     def "Check jrubyStorm dependencies are correct"() {
-      given:
+        given:
         def deps = project.configurations.getByName('jrubyStorm').dependencies
-      expect:
+
+        when:
+        project.evaluate()
+
+        then:
         deps.matching { Dependency d -> d.name == 'redstorm' }
     }
 
     def "Check jrubyStormLocal dependencies are correct"() {
-      given:
+        given:
         def deps = project.configurations.getByName('jrubyStormLocal').dependencies
-      expect:
+
+        when:
+        project.evaluate()
+
+        then:
         deps.matching { Dependency d -> d.name == 'storm-core' }
+    }
+
+    def "setting storm.version should add the right jrubyStormLocal dependency"() {
+        given:
+        String version = '0.1.1'
+        def dependencies = project.configurations.findByName('jrubyStormLocal').dependencies
+
+        when:
+        project.storm.version version
+        project.evaluate()
+
+        then:
+        project.storm.version == version
+        dependencies.matching { Dependency d ->
+            d.name == 'storm-core' && d.version == version
+        }
     }
 }
 
