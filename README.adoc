@@ -1,0 +1,54 @@
+= JRuby/Gradle Storm Plugin
+
+JRuby/Gradle plugin to manage creating Storm topology jars
+
+== Usage
+
+**NOTE:** This plugin is stili in a very early stages.
+
+Including the plugin:
+
+
+[source, groovy]
+----
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath "com.github.jruby-gradle:jruby-gradle-storm-plugin:0.2.0"
+    }
+}  
+----
+
+
+== Running a "local topology"
+
+The `JRubyStormLocal` task provides the underlying machinery to run a
+link:https://github.com/jruby-gradle/redstorm[Redstorm] topology in "local"
+mode:
+
+[source, groovy]
+----
+import com.github.jrubygradle.storm.JRubyStormLocal
+
+task runLocalTopology(type: JRubyStormLocal) {
+  // path is considered relative to the working directory
+  // the task is executed in
+  topology 'topologies/example_topology.rb'
+}
+----
+
+Then you can run the local topology with: `./gradlew runLocalTopology`
+
+NOTE: The Gradle script will block until the local topology is terminated (Ctrl+C)
+
+
+== Creating a topolog .jar
+
+Creating a topology `.jar` file is useflu when you plan on uploading your
+topology to a running Storm cluster. *Currently* this plugin will only create
+that jar for you, it will not upload it.
+
+By default the plugin will include `bolts/` and `/topologies/` in the generated
+`.jar` file.
+
+ * `./gradlew jrubyStorm` will create a `.jar` in `build/libs/`

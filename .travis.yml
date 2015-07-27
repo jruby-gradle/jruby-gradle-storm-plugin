@@ -1,0 +1,24 @@
+language: groovy
+sudo: false
+
+install:
+ - ./gradlew clean
+
+script:
+ - ./gradlew -S -i
+ - ./gradlew -S -i gradleTest
+
+jdk:
+ - oraclejdk7
+ - oraclejdk8
+ - openjdk7
+
+os:
+ - linux
+ - osx
+
+env: TERM=dumb
+
+cache:
+  directories:
+    - $HOME/.gradle
