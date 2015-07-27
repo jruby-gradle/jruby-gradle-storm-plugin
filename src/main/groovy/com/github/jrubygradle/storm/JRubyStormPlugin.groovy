@@ -42,11 +42,11 @@ class JRubyStormPlugin implements Plugin<Project> {
               from 'bolts'
             }
 
-            jruby {
-                // Use the default GEM installation directory
-                defaultGems()
-                mainClass 'redstorm.TopologyLauncher'
-            }
+            //jruby {
+            //    // Use the default GEM installation directory
+            //    defaultGems()
+            //    mainClass 'redstorm.TopologyLauncher'
+            //}
         }
 
         updateRepositories(project)
@@ -87,12 +87,6 @@ class JRubyStormPlugin implements Plugin<Project> {
                 version: '0.7.1+') {
             exclude module: 'storm-core'
         }
-
-        // We must pull in bouncycastle since it's not included as a proper
-        // dependency for the jruby-complete.jar that gets bundled into the
-        // topology jar. Similar code exists in the base plugin for the
-        // JRubyExec task
-        jrubyStorm "org.bouncycastle:bcprov-jdk15on:${project.jruby.bouncycastleVersion}"
 
         jrubyStormLocal group: 'org.apache.storm',
                 name: 'storm-core',
