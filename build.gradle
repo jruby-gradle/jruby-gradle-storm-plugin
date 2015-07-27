@@ -33,7 +33,7 @@ dependencies {
     compile localGroovy()
 
     ['jruby-gradle-plugin', 'jruby-gradle-jar-plugin'].each {
-        compile "com.github.jruby-gradle:${it}:${jrubyGradleMinVersion}+"
+        compile "com.github.jruby-gradle:${it}:${jrubyGradleMinVersion}"
     }
 
     compile 'com.github.jengelman.gradle.plugins:shadow:1.2.2+'
