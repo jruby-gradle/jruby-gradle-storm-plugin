@@ -6,7 +6,6 @@ import org.gradle.api.Project
 
 
 /**
- * @author R. Tyler Croy
  */
 class JRubyStormLocal extends JavaExec {
 

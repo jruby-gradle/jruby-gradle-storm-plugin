@@ -15,6 +15,7 @@ buildscript {
 
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.ysb33r.gradletest'
+apply plugin: 'codenarc'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
@@ -40,6 +41,11 @@ dependencies {
     testCompile ("org.spockframework:spock-core:0.7-groovy-${gradle.gradleVersion.startsWith('1.')?'1.8':'2.0'}") {
         exclude module : 'groovy-all'
     }
+}
+
+codenarc {
+    sourceSets = [sourceSets.main]
+    configFile = file('gradle/codenarc.xml')
 }
 
 test {
