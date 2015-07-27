@@ -1,7 +1,5 @@
 package com.github.jrubygradle.storm
 
-import com.github.jrubygradle.JRubyPlugin
-
 import groovy.transform.PackageScope
 
 import org.gradle.api.Plugin
@@ -26,11 +24,8 @@ class JRubyStormPlugin implements Plugin<Project> {
           jrubyStormLocal.extendsFrom jrubyStorm
         }
 
-        project.task('jrubyStorm', type: ShadowJar) {
-            group JRubyPlugin.TASK_GROUP_NAME
+        project.task('jrubyStorm', type: JRubyStorm) {
             description 'Create a JRuby-based Storm topology'
-            dependsOn project.tasks.jrubyPrepare
-            exclude '*.sw*', '*.gitkeep', '*.md', 'META-INF/BCKEY*'
 
             into('topologies') {
               from 'topologies'
@@ -76,7 +71,7 @@ class JRubyStormPlugin implements Plugin<Project> {
         // Excluding storm-core for the configuration where we create the
         // topology jar. This is because the running storm cluster will provide
         // the classes from this dependency. If we attempt to includ ethis, the
-        // storm classes will not initialize properly and you'll get exceptions
+        // skorm classes will not initialize properly and you'll get exceptions
         // like: "cannot load or initialize class backtype.storm.LocalCluster
         jrubyStorm ("com.github.jruby-gradle:redstorm:${project.storm.redstormVersion}") {
             exclude module: 'storm-core'
