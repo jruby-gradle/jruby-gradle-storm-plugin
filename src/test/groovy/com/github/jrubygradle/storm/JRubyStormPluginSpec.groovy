@@ -26,12 +26,6 @@ class JRubyStormPluginSpec extends Specification {
         project.apply plugin: 'com.github.jruby-gradle.storm'
     }
 
-    def "Basic sanity check"() {
-        expect:
-        project.tasks.jrubyStorm instanceof Task
-        project.tasks.jrubyStorm.group == JRubyPlugin.TASK_GROUP_NAME
-    }
-
     def "Check configurations exist"() {
         given:
         def configs = project.configurations
@@ -69,11 +63,11 @@ class JRubyStormPluginSpec extends Specification {
         def dependencies = project.configurations.findByName('jrubyStormLocal').dependencies
 
         when:
-        project.storm.version version
+        project.storm.defaultVersion version
         project.evaluate()
 
         then:
-        project.storm.version == version
+        project.storm.defaultVersion == version
         dependencies.matching { Dependency d ->
             d.name == 'storm-core' && d.version == version
         }
@@ -86,11 +80,11 @@ class JRubyStormPluginSpec extends Specification {
         def dependencies = project.configurations.findByName('jrubyStorm').dependencies
 
         when:
-        project.storm.redstormVersion version
+        project.storm.defaultRedstormVersion version
         project.evaluate()
 
         then:
-        project.storm.redstormVersion == version
+        project.storm.defaultRedstormVersion == version
         dependencies.matching { Dependency d ->
             d.name == 'redstorm' && d.version == version
         }

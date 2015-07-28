@@ -5,8 +5,6 @@ import groovy.transform.PackageScope
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 /**
  */
 class JRubyStormPlugin implements Plugin<Project> {
@@ -24,33 +22,9 @@ class JRubyStormPlugin implements Plugin<Project> {
           jrubyStormLocal.extendsFrom jrubyStorm
         }
 
-        project.task('jrubyStorm', type: JRubyStorm) {
-            description 'Create a JRuby-based Storm topology'
-
-            into('topologies') {
-              from 'topologies'
-            }
-            into('bolts') {
-              from 'bolts'
-            }
-
-            //jruby {
-            //    // Use the default GEM installation directory
-            //    defaultGems()
-            //    mainClass 'redstorm.TopologyLauncher'
-            //}
-        }
-
         project.afterEvaluate {
             updateRepositories(project)
             updateDependencies(project)
-
-            JRubyStormLocal.updateDependencies(project)
-
-            // Add the jrubyStorm configuration to the jrubyStorm task to make
-            // sure ShadowJar will unzip/incorporate the right data unpacked into
-            // the artifact
-            project.tasks.jrubyStorm.configurations.add(project.configurations.getByName('jrubyStorm'))
         }
     }
 
@@ -73,11 +47,11 @@ class JRubyStormPlugin implements Plugin<Project> {
         // the classes from this dependency. If we attempt to includ ethis, the
         // skorm classes will not initialize properly and you'll get exceptions
         // like: "cannot load or initialize class backtype.storm.LocalCluster
-        jrubyStorm ("com.github.jruby-gradle:redstorm:${project.storm.redstormVersion}") {
+        jrubyStorm ("com.github.jruby-gradle:redstorm:${project.storm.defaultRedstormVersion}") {
             exclude module: 'storm-core'
         }
 
-        jrubyStormLocal "org.apache.storm:storm-core:${project.storm.version}"
+        jrubyStormLocal "org.apache.storm:storm-core:${project.storm.defaultVersion}"
       }
     }
 }

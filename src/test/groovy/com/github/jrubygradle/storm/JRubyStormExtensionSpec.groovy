@@ -5,9 +5,9 @@ import spock.lang.*
 class JRubyStormExtensionSpec extends Specification {
     protected JRubyStormExtension ext = new JRubyStormExtension()
 
-    def "version should give me a Storm version"() {
+    def "defaultVersion should give me a Storm version"() {
         expect:
-        ext.version
+        ext.defaultVersion
     }
 
     def "versionshould set the version"() {
@@ -15,16 +15,16 @@ class JRubyStormExtensionSpec extends Specification {
         String version = '0.1.1'
 
         when:
-        ext.version version
+        ext.defaultVersion version
 
         then:
-        ext.version == version
+        ext.defaultVersion == version
 
     }
 
     def "redstormVersion should give me a Redstorm version"() {
         expect:
-        ext.redstormVersion
+        ext.defaultRedstormVersion
     }
 
     def "redstormVersion should set the redstorm version"() {
@@ -32,9 +32,9 @@ class JRubyStormExtensionSpec extends Specification {
         String version = '0.1'
 
         when:
-        ext.redstormVersion version
+        ext.defaultRedstormVersion version
 
         then:
-        ext.redstormVersion == version
+        ext.defaultRedstormVersion == version
     }
 }
