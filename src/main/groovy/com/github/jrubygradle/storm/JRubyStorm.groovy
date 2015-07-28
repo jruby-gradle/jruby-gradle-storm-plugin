@@ -5,6 +5,7 @@ import com.github.jrubygradle.JRubyPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -12,6 +13,8 @@ import org.gradle.api.tasks.Optional
  * Implement the custom behaviors needed to build a JRubyStorm topology
  */
 class JRubyStorm extends DefaultTask {
+    static final String DEFAULT_CONFIGURATION_NAME = 'jrubyStorm'
+
     /** Dynamically created dependent task for running the topology in local mode*/
     private Task runTask
     /** Dynamically created dependent task for building the topology jar */
@@ -21,28 +24,76 @@ class JRubyStorm extends DefaultTask {
     private static final List<String> DEFAULT_EXCLUDES = ['*.sw*',
                                                   '*.gitkeep',
                                                   '*.md',
-                                                  'META-INF/BCKEY*',
-                                                  ]
+                                                  'META-INF/BCKEY*', ]
+
+    /** Default version of redstorm to use */
+    protected String customRedstormVersion
+    /** Default version of Storm supported  included */
+    protected String customStormVersion
+    /** Configuration which has all of our dependencies */
+    protected Configuration configuration
+
 
     /** Path (absolute or relative) to the Ruby file containing the topology */
     @Input
     String topology
 
-    /** Default version of Storm supported and included */
-    @Input
-    @Optional
-    String stormVersion = '0.9.2-incubating'
+    void stormVersion(String version) {
+        this.customStormVersion = version
+    }
 
-    /** Default version of redstorm to use */
     @Input
     @Optional
-    String redstormVersion = '0.7.1'
+    String getStormVersion() {
+        return customStormVersion ?: project.storm.defaultVersion
+    }
+
+    void setRedstormVersion(String version) {
+        this.customRedstormVersion = version
+    }
+
+    @Input
+    @Optional
+    String getRedstormVersion() {
+        return customRedstormVersion ?: project.storm.defaultRedstormVersion
+    }
+
+    void setConfiguration(Configuration newConfiguration) {
+        this.configuration = newConfiguration
+    }
+
+    @Input
+    @Optional
+    Configuration getConfiguration() {
+        return configuration ?: project.configurations.findByName(DEFAULT_CONFIGURATION_NAME)
+    }
 
     JRubyStorm() {
         super()
+        configuration = project.configurations.maybeCreate(DEFAULT_CONFIGURATION_NAME)
         this.group JRubyPlugin.TASK_GROUP_NAME
         this.runTask = this.createRunTask(this.project, this.name)
         this.assembleTask = this.createAssembleTask(this.project, this.name)
+
+        project.afterEvaluate { this.updateDependencies() }
+    }
+
+    Configuration getLocalConfiguration() {
+        project.configurations.maybeCreate("${configuration.name}Local")
+    }
+
+    void updateDependencies() {
+        // Excluding storm-core for the configuration where we create the
+        // topology jar. This is because the running storm cluster will provide
+        // the classes from this dependency. If we attempt to includ ethis, the
+        // skorm classes will not initialize properly and you'll get exceptions
+        // like: "cannot load or initialize class backtype.storm.LocalCluster
+        project.dependencies.add(configuration.name, "com.github.jruby-gradle:redstorm:${redstormVersion}") {
+            exclude module: 'storm-core'
+        }
+
+        project.dependencies.add(localConfiguration.name, "org.apache.storm:storm-core:${stormVersion}")
+        localConfiguration.extendsFrom configuration
     }
 
     /**
