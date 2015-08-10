@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 buildscript {
     repositories {
         jcenter()
@@ -24,5 +26,21 @@ jrubyStorm {
  * This task is only here for the execution of the gradleTest
  */
 task runGradleTest {
-    dependsOn jrubyStorm
+    dependsOn assembleJRubyStorm
+    doLast {
+        Task assemble = project.tasks.findByName('assembleJRubyStorm')
+        logger.info("${assemble.outputs.files.files}")
+        /* Verify we have some outputs, otherwise what's the point */
+        if (!assemble.outputs.files.files) {
+            throw new GradleException("The task ${assemble} doesn't declare outputs")
+        }
+        /* ensure our outputs contain a valid jar file (aka Zip) */
+        assemble.outputs.files.files.each { File jar ->
+            logger.info("Looking at ${jar}")
+            ZipFile f = new ZipFile(jar)
+            if ((new ZipFile(jar)).size() <= 0) {
+                throw new GradleException("The file ${jar} does not appear to be valid")
+            }
+        }
+    }
 }
