@@ -32,8 +32,10 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    ['jruby-gradle-plugin', 'jruby-gradle-jar-plugin'].each {
-        compile "com.github.jruby-gradle:${it}:${jrubyGradleMinVersion}"
+    ['jruby-gradle-plugin', 'jruby-gradle-jar-plugin'].each { String plugin ->
+        String pluginDependency = "com.github.jruby-gradle:${plugin}:${jrubyGradleMinVersion}"
+        compile pluginDependency
+        gradleTest pluginDependency
     }
 
     compile 'com.github.jengelman.gradle.plugins:shadow:1.2.2+'
@@ -56,7 +58,8 @@ test {
 }
 
 gradleTest {
-    versions '2.0', '2.2', '2.4'
+    versions '2.0', '2.2', '2.4', '2.6'
+    dependsOn jar
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
