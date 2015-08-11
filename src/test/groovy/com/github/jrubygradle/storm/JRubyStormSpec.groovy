@@ -1,6 +1,5 @@
 package com.github.jrubygradle.storm
 
-import org.gradle.api.artifacts.Dependency
 import spock.lang.*
 
 import org.gradle.api.Project
@@ -104,32 +103,6 @@ class JRubyStormSpec extends Specification {
         project.task('spock', type: JRubyStorm)
 
         then:
-        println project.configurations
         project.configurations.findByName(JRubyStorm.DEFAULT_CONFIGURATION_NAME)
-    }
-
-    def "evaluation of the project should result in dependencies being added to the configuration"() {
-        given:
-        JRubyStorm task = project.task('spock', type: JRubyStorm)
-        def deps = task.configuration.dependencies
-
-        when:
-        project.evaluate()
-
-        then:
-        deps.matching { Dependency d -> d.name == 'redstorm' }
-    }
-
-    def "evaluation of the project should result in local mode dependencies"() {
-        given:
-        JRubyStorm task = project.task('spock', type: JRubyStorm)
-
-        when:
-        project.evaluate()
-
-        then:
-        project.configurations.findByName('jrubyStormLocal')?.dependencies?.matching {
-            it.name == 'storm-core'
-        }
     }
 }
