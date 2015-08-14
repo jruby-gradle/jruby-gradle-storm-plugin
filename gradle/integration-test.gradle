@@ -40,8 +40,8 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
 
     testLogging {
-        showStandardStreams = true
         exceptionFormat "full"
+        events "passed", "skipped", "failed", "standardOut", "standardError"
     }
 }
 check.dependsOn integrationTest

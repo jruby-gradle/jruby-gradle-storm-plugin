@@ -2,6 +2,7 @@ package com.github.jrubygradle.storm.internal
 
 import com.github.jrubygradle.jar.JRubyJar
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.*
 

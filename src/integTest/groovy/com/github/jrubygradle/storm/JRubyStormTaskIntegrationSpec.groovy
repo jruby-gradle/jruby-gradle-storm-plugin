@@ -10,51 +10,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.*
 
-/**
- */
-class JRubyStormTaskIntegrationSpec extends Specification {
-    def "evaluation of the project should result in an assemble and run task"() {
-        given:
-        Project project = ProjectBuilder.builder().build()
-        project.apply plugin: 'com.github.jruby-gradle.storm'
-
-        when:
-        project.evaluate()
-
-        then:
-        project.tasks.findByName('assembleJRubyStorm')
-        project.tasks.findByName('runJRubyStorm')
-    }
-
-    def "evaluation of the project should result in dependencies being added to the configuration"() {
-        given:
-        Project project = ProjectBuilder.builder().build()
-        project.apply plugin: 'com.github.jruby-gradle.storm'
-        JRubyStorm task = project.task('spock', type: JRubyStorm)
-        def deps = task.configuration.dependencies
-
-        when:
-        project.evaluate()
-
-        then:
-        deps.matching { Dependency d -> d.name == 'redstorm' }
-    }
-
-    def "evaluation of the project should result in local mode dependencies"() {
-        given:
-        Project project = ProjectBuilder.builder().build()
-        project.apply plugin: 'com.github.jruby-gradle.storm'
-        JRubyStorm task = project.task('spock', type: JRubyStorm)
-
-        when:
-        project.evaluate()
-
-        then:
-        project.configurations.findByName('jrubyStormLocal')?.dependencies?.matching {
-            it.name == 'storm-core'
-        }
-    }
-}
 
 /** Integration tests which actually execute Gradle via the GradleTestKit */
 class JRubyStormTestKitSpec extends Specification {
