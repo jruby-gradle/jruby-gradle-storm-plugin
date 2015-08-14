@@ -24,6 +24,12 @@ class JRubyStormJar extends JRubyJar {
 
     @Override
     void copy() {
+        if (parentTask) {
+            File redstorm = parentTask.configuration.find {
+                it.name.matches(/redstorm-(.*).jar/)
+            }
+            from { project.zipTree(redstorm) }
+        }
         if (parentTask.topology) {
             into('') { from parentTask.topology }
         }
