@@ -62,8 +62,8 @@ codenarc {
 
 test {
     testLogging {
-        showStandardStreams = true
         exceptionFormat "full"
+        events "passed", "skipped", "failed", "standardOut", "standardError"
     }
 }
 
