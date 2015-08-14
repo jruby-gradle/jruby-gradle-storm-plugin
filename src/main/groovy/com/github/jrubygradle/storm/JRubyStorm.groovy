@@ -3,11 +3,12 @@ package com.github.jrubygradle.storm
 import com.github.jrubygradle.JRubyPlugin
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+
+import com.github.jrubygradle.storm.internal.JRubyStorm as JRubyStormInternal
 
 /**
  * Implement the custom behaviors needed to build a JRubyStorm topology
@@ -72,8 +73,8 @@ class JRubyStorm extends DefaultTask {
         super()
         configuration = project.configurations.maybeCreate(DEFAULT_CONFIGURATION_NAME)
         this.group JRubyPlugin.TASK_GROUP_NAME
-        this.runTask = this.createRunTask(this.project, this.name)
-        this.assembleTask = this.createAssembleTask(this.project, this.name)
+        this.runTask = JRubyStormInternal.createRunTask(this.project, this.name, this)
+        this.assembleTask = JRubyStormInternal.createAssembleTask(this.project, this.name)
 
         project.afterEvaluate { this.updateDependencies() }
     }
@@ -108,28 +109,5 @@ class JRubyStorm extends DefaultTask {
         /* delegate group configuration */
         this.runTask?.group newGroup
         this.assembleTask?.group newGroup
-    }
-
-    private Task createRunTask(Project project, String baseName) {
-        JRubyStormLocal runTask = project.task("run${prepareNameForSuffix(baseName)}",
-                            type: JRubyStormLocal)
-        runTask.parentTask = this
-        return runTask
-    }
-
-    private Task createAssembleTask(Project project, String baseName) {
-        return project.task("assemble${prepareNameForSuffix(baseName)}")
-    }
-
-    /**
-     * Prepare a name for suffixing to a task name, i.e. with a baseName of
-     * "foo" if I need a task to prepare foo, this will return 'Foo' so I can
-     * make a "prepareFoo" task and it cases properly
-     *
-     * This method has a special handling for the string 'jruby' where it will
-     * case it properly like "JRuby" instead of "Jruby"
-     */
-    private String prepareNameForSuffix(String baseName) {
-        return baseName.replaceAll("(?i)jruby", 'JRuby').capitalize()
     }
 }

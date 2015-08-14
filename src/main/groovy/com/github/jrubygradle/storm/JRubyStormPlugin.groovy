@@ -15,9 +15,7 @@ class JRubyStormPlugin implements Plugin<Project> {
         project.extensions.create('storm', JRubyStormExtension)
         project.task('jrubyStorm', type: JRubyStorm)
 
-        project.afterEvaluate {
-            updateRepositories(project)
-        }
+        updateRepositories(project)
     }
 
     @PackageScope
