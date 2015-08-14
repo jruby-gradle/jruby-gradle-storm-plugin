@@ -1,36 +1,50 @@
 package com.github.jrubygradle.storm
 
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Input
-import org.gradle.api.Project
+import org.gradle.api.tasks.JavaExec
 
+import com.github.jrubygradle.internal.JRubyExecTraits
 
 /**
- * @author R. Tyler Croy
+ * JRubyStormLocal is a task for invoking the redstorm local topology mode for
+ * a given codebase
  */
-class JRubyStormLocal extends JavaExec {
+class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
+    /** parent from which this task will inherit some configuration */
+    JRubyStorm parentTask
 
-  static void updateDependencies(Project project) {
-    project.tasks.withType(JRubyStormLocal) { JRubyStormLocal t ->
-      t.classpath project.configurations.jrubyStormLocal
+    /** Set a custom path (relative or absolute) to the file defining a Redstorm topology
+     *
+     * If this is not set, the parentTask's topology will be used
+     */
+    protected String customTopology
+
+    /** Path (relative or absolute) to the .rb file defining a Redstorm topology */
+    @Input
+    String getTopology() {
+        return customTopology ?: parentTask?.topology
     }
-  }
 
-  @Input
-  String topology
+    void setTopology(String topology) {
+        this.customTopology = topology
+    }
 
-  JRubyStormLocal() {
-    super()
-    super.dependsOn project.tasks.jrubyPrepare
-    super.setMain 'redstorm.TopologyLauncher'
-  }
+    JRubyStormLocal() {
+        super()
+        super.setMain 'redstorm.TopologyLauncher'
+    }
 
-  @Override
-  void exec() {
-    super.setArgs(['local', topology])
-    super.setEnvironment 'GEM_HOME' : project.jruby.gemInstallDir,
-                   'GEM_PATH' : project.jruby.gemInstallDir,
-                   'HOME' : System.env.HOME
-    super.exec()
-  }
+    @Override
+    void exec() {
+        logger.info("JRubyStormLocal parentTask: ${parentTask} (${parentTask.topology})")
+        super.setArgs(['local', topology])
+        super.setEnvironment getPreparedEnvironment(environment)
+
+        if (parentTask) {
+            super.classpath parentTask.localConfiguration.asPath
+        }
+
+        prepareDependencies(project)
+        super.exec()
+    }
 }

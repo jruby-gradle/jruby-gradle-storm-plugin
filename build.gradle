@@ -1,93 +1,70 @@
-plugins {
-    id "com.github.jruby-gradle.jar" version "0.1.2"
-    // https://github.com/jruby-gradle/jruby-gradle-jar-plugin/issues/18
-    id "com.github.jruby-gradle.base" version "0.1.3"
-    id "com.github.johnrengelman.shadow" version "1.1.2"
-    id "com.jfrog.bintray" version "0.6"
-}
+buildscript {
+    repositories {
+        jcenter()
 
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2"
+        classpath "org.ysb33r.gradle:gradletest:0.5.4"
+    }
+}
+apply plugin: 'codenarc'
 apply plugin: 'groovy'
-apply plugin: 'java'
 apply plugin: 'maven'
+apply from: 'gradle/integration-test.gradle'
+apply from: 'gradle/releasing.gradle'
 
 group = 'com.github.jruby-gradle'
-version = '0.1.6'
-
-if (System.env.RELEASE != '1') {
-    version = "${version}-SNAPSHOT"
-}
-sourceCompatibility = 1.7
+version = '0.2.0'
+defaultTasks 'check', 'assemble'
 
 repositories {
     jcenter()
-    mavenLocal()
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    compile new GradleDist(project, '2.0').asFileTree
 
-    compile group: 'com.github.jruby-gradle',
-            name: 'jruby-gradle-plugin',
-            version: '0.1.8+'
-    compile group: 'com.github.jruby-gradle',
-            name: 'jruby-gradle-jar-plugin',
-            version: '0.1.2+'
-    compile group: 'com.github.jengelman.gradle.plugins',
-            name: 'shadow',
-            version: '1.1.2+'
+    ['jruby-gradle-plugin', 'jruby-gradle-jar-plugin'].each { String plugin ->
+        String pluginDependency = "com.github.jruby-gradle:${plugin}:${jrubyGradleMinVersion}"
+        compile pluginDependency
+        gradleTest pluginDependency
+    }
 
     testCompile ("org.spockframework:spock-core:0.7-groovy-${gradle.gradleVersion.startsWith('1.')?'1.8':'2.0'}") {
         exclude module : 'groovy-all'
     }
 }
 
+plugins.withType(JavaPlugin) {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
+    project.tasks.withType(JavaCompile) { task ->
+        task.sourceCompatibility = project.sourceCompatibility
+        task.targetCompatibility = project.targetCompatibility
+    }
+
+    project.tasks.withType(GroovyCompile) { task ->
+        task.sourceCompatibility = project.sourceCompatibility
+        task.targetCompatibility = project.targetCompatibility
+    }
+}
+
+codenarc {
+    sourceSets = [sourceSets.main]
+    configFile = file('gradle/codenarc.xml')
+}
+
 test {
     testLogging {
-        showStandardStreams = true
         exceptionFormat "full"
+        events "passed", "skipped", "failed", "standardOut", "standardError"
     }
 }
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-
-// Ensure we don't fail in CI or on a system without these values set in
-// ~/.gradle/gradle.properties
-if (!hasProperty( 'bintrayUser' ))
-  ext.bintrayUser = ''
-
-if (!hasProperty( 'bintrayKey' ))
-  ext.bintrayKey = ''
-
-bintray {
-    user = project.bintrayUser
-    key = project.bintrayKey
-    publish = true
-    dryRun = false
-    configurations = ['archives']
-
-    pkg {
-        userOrg = 'jruby-gradle'
-        repo = 'plugins'
-        name = 'jruby-gradle-storm-plugin'
-        labels = ['jruby','storm','java']
-
-        version {
-            name = project.version
-            vcsTag = "v${project.version}"
-            attributes = ['gradle-plugin' : 'com.github.jruby-gradle.storm:com.github.jruby-gradle:jruby-gradle-storm-plugin']
-            desc = 'This plugin encapsulates Storm topology building functionality for JRuby Gradle projects'
-        }
-    }
-}
-bintrayUpload.dependsOn assemble
 
 // vim: ft=groovy

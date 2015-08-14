@@ -1,0 +1,33 @@
+apply plugin: 'com.jfrog.bintray'
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+bintray {
+    user = project.bintrayUser
+    key = project.bintrayKey
+    publish = true
+    dryRun = false
+    configurations = ['archives']
+
+    pkg {
+        userOrg = 'jruby-gradle'
+        repo = 'plugins'
+        name = 'jruby-gradle-storm-plugin'
+        labels = ['jruby','storm','java']
+
+        version {
+            name = project.version
+            vcsTag = "v${project.version}"
+            attributes = ['gradle-plugin' : 'com.github.jruby-gradle.storm:com.github.jruby-gradle:jruby-gradle-storm-plugin']
+            desc = 'This plugin encapsulates Storm topology building functionality for JRuby Gradle projects'
+        }
+    }
+}
+bintrayUpload.dependsOn assemble
