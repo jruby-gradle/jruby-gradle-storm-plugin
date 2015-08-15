@@ -1,3 +1,4 @@
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 buildscript {
@@ -18,7 +19,7 @@ buildscript {
 apply plugin: 'com.github.jruby-gradle.storm'
 
 jrubyStorm {
-    topology 'hello-topology.rb'
+    topology "${rootDir}/hello-topology.rb"
 }
 
 /*
@@ -35,9 +36,8 @@ task runGradleTest {
         }
         /* ensure our outputs contain a valid jar file (aka Zip) */
         assemble.outputs.files.files.each { File jar ->
-            logger.info("Looking at ${jar}")
             ZipFile f = new ZipFile(jar)
-            if ((new ZipFile(jar)).size() <= 0) {
+            if (!f.entries().find { ZipEntry ze -> ze.name.matches(/hello-topology.rb/) }) {
                 throw new GradleException("The file ${jar} does not appear to be valid")
             }
         }

@@ -5,6 +5,7 @@ import com.github.jrubygradle.JRubyPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -21,19 +22,12 @@ class JRubyStorm extends DefaultTask {
     /** Dynamically created dependent task for building the topology jar */
     private Task assembleTask
 
-    private static final String REDSTORM_MAIN = 'redstorm.TopologyLauncher'
-    private static final List<String> DEFAULT_EXCLUDES = ['*.sw*',
-                                                  '*.gitkeep',
-                                                  '*.md',
-                                                  'META-INF/BCKEY*', ]
-
     /** Default version of redstorm to use */
     protected String customRedstormVersion
     /** Default version of Storm supported  included */
     protected String customStormVersion
     /** Configuration which has all of our dependencies */
     protected Configuration configuration
-
 
     /** Path (absolute or relative) to the Ruby file containing the topology */
     @Input
@@ -69,12 +63,24 @@ class JRubyStorm extends DefaultTask {
         return configuration ?: project.configurations.findByName(DEFAULT_CONFIGURATION_NAME)
     }
 
+    @Input
+    @Optional
+    void into(CopySpec spec) {
+        assembleTask.into(spec)
+    }
+
+    @Input
+    @Optional
+    void from(CopySpec spec) {
+        assembleTask.from(spec)
+    }
+
     JRubyStorm() {
         super()
         configuration = project.configurations.maybeCreate(DEFAULT_CONFIGURATION_NAME)
         this.group JRubyPlugin.TASK_GROUP_NAME
-        this.runTask = JRubyStormInternal.createRunTask(this.project, this.name, this)
-        this.assembleTask = JRubyStormInternal.createAssembleTask(this.project, this.name)
+        this.runTask = JRubyStormInternal.createRunTask(this.project, this)
+        this.assembleTask = JRubyStormInternal.createAssembleTask(this.project, this)
 
         project.afterEvaluate { this.updateDependencies() }
     }

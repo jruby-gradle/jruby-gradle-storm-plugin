@@ -6,8 +6,11 @@ import org.gradle.api.Task
 
 
 class JRubyStorm {
-    static Task createAssembleTask(Project project, String baseName) {
-        return project.task("assemble${prepareNameForSuffix(baseName)}", type: JRubyStormJar)
+    static Task createAssembleTask(Project project, Task parent) {
+        JRubyStormJar task = project.task("assemble${prepareNameForSuffix(parent.name)}",
+                type: JRubyStormJar)
+        task.parentTask = parent
+        return task
     }
 
     /**
@@ -22,8 +25,8 @@ class JRubyStorm {
         return baseName.replaceAll("(?i)jruby", 'JRuby').capitalize()
     }
 
-    static Task createRunTask(Project project, String baseName, Task parent) {
-        JRubyStormLocal runTask = project.task("run${prepareNameForSuffix(baseName)}",
+    static Task createRunTask(Project project, Task parent) {
+        JRubyStormLocal runTask = project.task("run${prepareNameForSuffix(parent.name)}",
                 type: JRubyStormLocal)
         runTask.parentTask = parent
         return runTask

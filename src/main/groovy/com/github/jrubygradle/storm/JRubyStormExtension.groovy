@@ -9,7 +9,7 @@ class JRubyStormExtension {
     String defaultVersion = '0.9.2-incubating'
 
     /** Default version of redstorm to use */
-    String defaultRedstormVersion = '0.7.1'
+    String defaultRedstormVersion = '0.7.2'
 
     /** Set the Storm dependency version */
     void defaultVersion(Object stormVersion) {
