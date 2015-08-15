@@ -5,6 +5,7 @@ import com.github.jrubygradle.JRubyPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -27,7 +28,6 @@ class JRubyStorm extends DefaultTask {
     protected String customStormVersion
     /** Configuration which has all of our dependencies */
     protected Configuration configuration
-
 
     /** Path (absolute or relative) to the Ruby file containing the topology */
     @Input
@@ -61,6 +61,18 @@ class JRubyStorm extends DefaultTask {
     @Optional
     Configuration getConfiguration() {
         return configuration ?: project.configurations.findByName(DEFAULT_CONFIGURATION_NAME)
+    }
+
+    @Input
+    @Optional
+    void into(CopySpec spec) {
+        assembleTask.into(spec)
+    }
+
+    @Input
+    @Optional
+    void from(CopySpec spec) {
+        assembleTask.from(spec)
     }
 
     JRubyStorm() {
