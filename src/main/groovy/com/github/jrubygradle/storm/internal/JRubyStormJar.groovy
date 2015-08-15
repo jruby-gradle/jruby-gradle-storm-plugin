@@ -27,19 +27,25 @@ class JRubyStormJar extends JRubyJar {
     JRubyStormJar() {
         super()
         appendix = ''
+
+        project.afterEvaluate {
+            this.includeRedstorm()
+            this.includeTopology()
+        }
     }
 
-    @Override
-    void copy() {
-        if (parentTask) {
-            File redstorm = parentTask.configuration.find {
+    void includeRedstorm() {
+        from {
+            File redstorm = this.parentTask.configuration.find {
                 it.name.matches(/redstorm-(.*).jar/)
             }
-            from { project.zipTree(redstorm) }
+            project.zipTree(redstorm)
         }
+    }
+
+    void includeTopology() {
         if (parentTask.topology) {
             into('') { from parentTask.topology }
         }
-        super.copy()
     }
 }
