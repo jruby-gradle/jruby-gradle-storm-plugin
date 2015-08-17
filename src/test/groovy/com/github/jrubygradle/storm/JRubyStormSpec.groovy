@@ -61,6 +61,14 @@ class JRubyStormSpec extends Specification {
         runTask.topology == 'spock.rb'
     }
 
+    def "JRubyStorm task should depend on its assembleTask"() {
+        given:
+        Task task = project.task('spock', type: JRubyStorm)
+
+        expect:
+        task.dependsOn.find { it == task.assembleTask }
+    }
+
     def "getStormVersion() should return the storm.defaultStormVersion by default"() {
         given:
         JRubyStorm task = project.task('spock', type: JRubyStorm)

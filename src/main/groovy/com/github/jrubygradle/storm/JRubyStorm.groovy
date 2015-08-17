@@ -3,6 +3,7 @@ package com.github.jrubygradle.storm
 import com.github.jrubygradle.JRubyPlugin
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Incubating
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.CopySpec
@@ -28,6 +29,12 @@ class JRubyStorm extends DefaultTask {
     protected String customStormVersion
     /** Configuration which has all of our dependencies */
     protected Configuration configuration
+
+    /** Grab the {@code org.gradle.api.tasks.bundling.AbstractArchiveTask} that this depends on to build the jar */
+    @Incubating
+    Task getAssembleTask() {
+        return assembleTask
+    }
 
     /** Path (absolute or relative) to the Ruby file containing the topology */
     @Input
@@ -81,6 +88,7 @@ class JRubyStorm extends DefaultTask {
         this.group JRubyPlugin.TASK_GROUP_NAME
         this.runTask = JRubyStormInternal.createRunTask(this.project, this)
         this.assembleTask = JRubyStormInternal.createAssembleTask(this.project, this)
+        this.dependsOn assembleTask
 
         project.afterEvaluate { this.updateDependencies() }
     }
