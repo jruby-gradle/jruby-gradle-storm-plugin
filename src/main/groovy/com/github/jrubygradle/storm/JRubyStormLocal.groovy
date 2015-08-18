@@ -1,5 +1,6 @@
 package com.github.jrubygradle.storm
 
+import com.github.jrubygradle.internal.JRubyExecUtils
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.JavaExec
 
@@ -10,8 +11,19 @@ import com.github.jrubygradle.internal.JRubyExecTraits
  * a given codebase
  */
 class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
+    static final String DEFAULT_JRUBYSTORMLOCAL_CONFIG = 'jrubyStormLocal'
     /** parent from which this task will inherit some configuration */
     JRubyStorm parentTask
+
+    @Input
+    @Override
+    String getConfiguration() {
+        /* Prevent the usage of jrubyExec as our configuration which is never correct */
+        if (JRubyExecTraits.super.getConfiguration() == JRubyExecUtils.DEFAULT_JRUBYEXEC_CONFIG) {
+            return DEFAULT_JRUBYSTORMLOCAL_CONFIG
+        }
+        return JRubyExecTraits.super.getConfiguration()
+    }
 
     /** Set a custom path (relative or absolute) to the file defining a Redstorm topology
      *

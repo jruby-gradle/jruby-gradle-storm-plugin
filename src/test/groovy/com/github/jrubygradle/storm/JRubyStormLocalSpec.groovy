@@ -10,26 +10,24 @@ import org.gradle.testfixtures.ProjectBuilder
  *
  */
 class JRubyStormLocalSpec extends Specification {
-    protected Project project
+    Project project
+    JRubyStormLocal task
 
     void setup() {
         project = ProjectBuilder.builder().build()
         project.apply plugin: 'com.github.jruby-gradle.storm'
+        task = project.task('spock', type: JRubyStormLocal)
     }
 
     def "jrubyStormLocal task should be a proper instance"() {
-        when:
-        project.task('jrubyStormLocal', type: JRubyStormLocal)
-
-        then:
-        project.tasks.jrubyStormLocal instanceof JRubyStormLocal
+        expect:
+        task instanceof JRubyStormLocal
     }
 
     def "the task should inherit the topology configured on the parent"() {
         given:
         JRubyStorm parent = project.task('spock-parent', type: JRubyStorm)
         parent.topology = 'foo.rb'
-        JRubyStormLocal task = project.task('spock', type: JRubyStormLocal)
 
         when:
         task.parentTask = parent
@@ -40,7 +38,6 @@ class JRubyStormLocalSpec extends Specification {
 
     def "I should be able to set a topology to run without a parent task"() {
         given:
-        JRubyStormLocal task = project.task('spock', type: JRubyStormLocal)
         String topologyFile = 'topology.rb'
 
         when:
@@ -48,5 +45,22 @@ class JRubyStormLocalSpec extends Specification {
 
         then:
         task.topology == topologyFile
+    }
+
+    @Issue('https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/12')
+    def "default configuration should not be from JRubyExec"() {
+        expect:
+        task.configuration == JRubyStormLocal.DEFAULT_JRUBYSTORMLOCAL_CONFIG
+    }
+
+    def "setting the configuration should work"() {
+        given:
+        final String configName = 'someConfiguration'
+
+        when:
+        task.configuration configName
+
+        then:
+        task.configuration == configName
     }
 }
