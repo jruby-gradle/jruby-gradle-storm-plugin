@@ -1,27 +1,30 @@
 package com.github.jrubygradle.storm
 
 import com.github.jrubygradle.JRubyPlugin
-
 import org.gradle.api.DefaultTask
 import org.gradle.api.Incubating
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import com.github.jrubygradle.storm.internal.JRubyStorm as JRubyStormInternal
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 /**
  * Implement the custom behaviors needed to build a JRubyStorm topology
  */
+@Incubating
 class JRubyStorm extends DefaultTask {
     static final String DEFAULT_CONFIGURATION_NAME = 'jrubyStorm'
 
     /** Dynamically created dependent task for running the topology in local mode*/
     private Task runTask
-    /** Dynamically created dependent task for building the topology jar */
-    private Task assembleTask
+    /**
+     * Dynamically created dependent task for building the topology jar
+     */
+    @Delegate
+    AbstractArchiveTask assembleTask
 
     /** Default version of redstorm to use */
     protected String customRedstormVersion
@@ -30,8 +33,6 @@ class JRubyStorm extends DefaultTask {
     /** Configuration which has all of our dependencies */
     protected Configuration configuration
 
-    /** Grab the {@code org.gradle.api.tasks.bundling.AbstractArchiveTask} that this depends on to build the jar */
-    @Incubating
     Task getAssembleTask() {
         return assembleTask
     }
@@ -68,18 +69,6 @@ class JRubyStorm extends DefaultTask {
     @Optional
     Configuration getConfiguration() {
         return configuration ?: project.configurations.findByName(DEFAULT_CONFIGURATION_NAME)
-    }
-
-    @Input
-    @Optional
-    void into(CopySpec spec) {
-        assembleTask.into(spec)
-    }
-
-    @Input
-    @Optional
-    void from(CopySpec spec) {
-        assembleTask.from(spec)
     }
 
     JRubyStorm() {
