@@ -1,24 +1,20 @@
 language: groovy
 sudo: false
-
 install:
- - ./gradlew clean
-
+- "./gradlew clean"
 script:
- - ./gradlew -S -i
- - ./gradlew -S -i gradleTest
-
+- "./gradlew -S -i"
+- "./gradlew -S -i gradleTest"
 jdk:
- - oraclejdk7
- - oraclejdk8
- - openjdk7
-
-os:
- - linux
- - osx
-
-env: TERM=dumb
-
+- oraclejdk7
+- oraclejdk8
+- openjdk7
+env:
+  matrix:
+  - TERM=dumb
+  global:
+    secure: MwCVmyShcCHpe9CAQqveN5FWA4z0H+iYv/pzae0up1pCN9OqTL1h9jHkVoMhOQGw5aQQiptObt+5Y2aNlxSXBDPlpyQHV3EtH1ABJxNbdVNvhm2DACvUgF1uGinP2Gof7hm+2S54vEqAaYSd516lMV741H2CvmpjQhaJNpKeQO0=
 cache:
   directories:
-    - $HOME/.gradle
+  - "$HOME/.gradle"
+after_success: "./gradlew bintrayUpload -i -PbintrayUser=rtyler -PbintrayKey=${BINTRAY_KEY}"

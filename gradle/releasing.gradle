@@ -13,8 +13,13 @@ bintray {
     user = project.bintrayUser
     key = project.bintrayKey
     publish = true
-    dryRun = false
     configurations = ['archives']
+    /*
+     * Only only publish when we're tagging a release and if we've executed on
+     * the JDK7 build. This is to prevent multiple attempts by the build matrix
+     * to publish the artifacts
+     */
+    dryRun = !((System.env.TRAVIS_TAG as boolean) && (System.env.TRAVIS_JDK_VERSION == 'oraclejdk7'))
 
     pkg {
         userOrg = 'jruby-gradle'
@@ -26,7 +31,7 @@ bintray {
             name = project.version
             vcsTag = "v${project.version}"
             attributes = ['gradle-plugin' : 'com.github.jruby-gradle.storm:com.github.jruby-gradle:jruby-gradle-storm-plugin']
-            desc = 'This plugin encapsulates Storm topology building functionality for JRuby Gradle projects'
+            desc = project.description
         }
     }
 }

@@ -19,8 +19,14 @@ apply from: 'gradle/integration-test.gradle'
 apply from: 'gradle/releasing.gradle'
 
 group = 'com.github.jruby-gradle'
-version = '0.2.0'
+version = '0.3.0'
 defaultTasks 'check', 'assemble'
+
+// Any time we're not expicitly saying "build me a release build" we'll change
+// the version to -SNAPSHOT
+if (!(System.env.TRAVIS_TAG as Boolean)) {
+    version = "${version}-SNAPSHOT"
+}
 
 repositories {
     jcenter()
