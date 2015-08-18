@@ -15,11 +15,11 @@ buildscript {
 apply plugin: 'codenarc'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
 apply from: 'gradle/integration-test.gradle'
-apply from: 'gradle/releasing.gradle'
 
 group = 'com.github.jruby-gradle'
-version = '0.3.0'
+version = '0.3.1'
 defaultTasks 'check', 'assemble'
 
 // Any time we're not expicitly saying "build me a release build" we'll change
@@ -75,5 +75,42 @@ test {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+bintray {
+    user = project.bintrayUser
+    key = project.bintrayKey
+    publish = true
+    configurations = ['archives']
+    /*
+     * Only only publish when we're tagging a release and if we've executed on
+     * the JDK7 build. This is to prevent multiple attempts by the build matrix
+     * to publish the artifacts
+     */
+    dryRun = !((System.env.TRAVIS_TAG as boolean) && (System.env.TRAVIS_JDK_VERSION == 'oraclejdk7'))
+
+    pkg {
+        userOrg = 'jruby-gradle'
+        repo = 'plugins'
+        name = 'jruby-gradle-storm-plugin'
+        labels = ['jruby','storm','java']
+
+        version {
+            name = project.version
+            vcsTag = "v${project.version}"
+            attributes = ['gradle-plugin' : 'com.github.jruby-gradle.storm:com.github.jruby-gradle:jruby-gradle-storm-plugin']
+            desc = project.description
+        }
+    }
+}
+bintrayUpload.dependsOn assemble
 
 // vim: ft=groovy
