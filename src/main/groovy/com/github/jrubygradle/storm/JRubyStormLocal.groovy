@@ -36,7 +36,7 @@ class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
 
     @Override
     void exec() {
-        logger.info("JRubyStormLocal parentTask: ${parentTask} (${parentTask.topology})")
+        logger.info("JRubyStormLocal executing with parent (${parentTask}) and topology: ${topology}")
         super.setArgs(['local', topology])
         super.setEnvironment getPreparedEnvironment(environment)
 
