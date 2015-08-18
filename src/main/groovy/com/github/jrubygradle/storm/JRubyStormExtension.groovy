@@ -12,7 +12,7 @@ class JRubyStormExtension {
 
     @Incubating
     /** Default version of redstorm to use */
-    String defaultRedstormVersion = '0.7.2'
+    String defaultRedstormVersion = '0.7.3'
 
     /** Set the Storm dependency version */
     void defaultVersion(Object stormVersion) {

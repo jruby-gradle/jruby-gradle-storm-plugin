@@ -1,5 +1,6 @@
 package com.github.jrubygradle.storm
 
+import com.github.jrubygradle.storm.internal.JRubyStormJar
 import org.gradle.api.artifacts.Dependency
 import spock.lang.*
 
@@ -59,6 +60,39 @@ class JRubyStormSpec extends Specification {
         expect:
         runTask instanceof JRubyStormLocal
         runTask.topology == 'spock.rb'
+    }
+
+    def "JRubyStorm task should depend on its assembleTask"() {
+        given:
+        Task task = project.task('spock', type: JRubyStorm)
+
+        expect:
+        task.dependsOn.find { it == task.assembleTask }
+    }
+
+    def "into(destPath) should delegate to the assembleTask"() {
+        given:
+        final String path = "some-path"
+        JRubyStormJar assembleTask = Mock(JRubyStormJar)
+        JRubyStorm task = project.task('spock', type: JRubyStorm)
+        task.assembleTask = assembleTask
+        1 * assembleTask.into(path) >> assembleTask
+
+        expect:
+        task.into(path) == assembleTask
+    }
+
+    def "into(destPath, copySpec) should delegate to the assembleTask"() {
+        given:
+        final String path = "some-path"
+        JRubyStormJar assembleTask = Mock(JRubyStormJar)
+        JRubyStorm task = project.task('spock', type: JRubyStorm)
+        task.assembleTask = assembleTask
+        Closure copySpec = { 1 + 1 }
+        1 * assembleTask.into(path, copySpec) >> assembleTask
+
+        expect:
+        task.into(path, copySpec) == assembleTask
     }
 
     def "getStormVersion() should return the storm.defaultStormVersion by default"() {
