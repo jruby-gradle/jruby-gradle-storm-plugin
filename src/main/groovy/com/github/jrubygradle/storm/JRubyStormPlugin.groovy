@@ -21,8 +21,6 @@ class JRubyStormPlugin implements Plugin<Project> {
     @PackageScope
     void updateRepositories(Project project) {
       project.repositories {
-        // jcenter contains the redstorm and gradle dependencies
-        jcenter()
         // Repositories for Storm dependencies
         maven { url 'http://clojars.org/repo/' }
         maven { url 'http://conjars.org/repo/' }

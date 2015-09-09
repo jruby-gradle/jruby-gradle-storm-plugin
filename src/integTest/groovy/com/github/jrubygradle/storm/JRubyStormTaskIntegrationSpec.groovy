@@ -39,6 +39,11 @@ buildscript {
 }
 apply plugin: 'com.github.jruby-gradle.storm'
 
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
 jrubyStorm {
 }
     """
