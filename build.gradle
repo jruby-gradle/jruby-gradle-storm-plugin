@@ -112,5 +112,6 @@ bintray {
     }
 }
 bintrayUpload.dependsOn assemble
+install.dependsOn check, assemble
 
 // vim: ft=groovy

@@ -1,6 +1,7 @@
 package com.github.jrubygradle.storm.internal
 
 import com.github.jrubygradle.jar.JRubyJar
+import com.github.jrubygradle.storm.JRubyStormPlugin
 import groovy.transform.InheritConstructors
 
 import com.github.jrubygradle.storm.JRubyStorm
@@ -31,6 +32,7 @@ class JRubyStormJar extends JRubyJar {
         project.afterEvaluate {
             this.includeRedstorm()
             this.includeTopology()
+            this.includeClasspathDependencies()
         }
     }
 
@@ -46,6 +48,14 @@ class JRubyStormJar extends JRubyJar {
     void includeTopology() {
         if (parentTask.topology) {
             into('') { from parentTask.topology }
+        }
+    }
+
+    void includeClasspathDependencies() {
+        project.configurations.findByName(JRubyStormPlugin.CLASSPATH_CONFIGURATION).files.each { File f ->
+            if (f.name.endsWith(".jar")) {
+                from { project.zipTree(f) }
+            }
         }
     }
 }
