@@ -19,7 +19,7 @@ apply plugin: 'com.jfrog.bintray'
 apply from: 'gradle/integration-test.gradle'
 
 group = 'com.github.jruby-gradle'
-version = '0.3.1'
+version = '0.4.0'
 defaultTasks 'check', 'assemble'
 
 // Any time we're not expicitly saying "build me a release build" we'll change
