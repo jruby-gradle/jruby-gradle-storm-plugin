@@ -37,4 +37,25 @@ class JRubyStormJarSpec extends Specification {
         expect: "that it has no special appendix in the filename"
         task.appendix == ''
     }
+
+    @Issue('https://github.com/jruby-gradle/redstorm/issues/11')
+    @Issue('https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/23')
+    def 'jrubyVersion should be default to 1.7.xx'() {
+        given:
+        JRubyStormJar task = project.task('spock', type: JRubyStormJar)
+
+        expect:
+        task.jrubyVersion == '1.7.22'
+    }
+
+    def "Setting jrubyVersion should override the default"() {
+        given:
+        final String version = '1.7.21'
+        JRubyStormJar task = project.task('spock', type: JRubyStormJar) {
+            jrubyVersion version
+        }
+
+        expect:
+        task.jrubyVersion == version
+    }
 }

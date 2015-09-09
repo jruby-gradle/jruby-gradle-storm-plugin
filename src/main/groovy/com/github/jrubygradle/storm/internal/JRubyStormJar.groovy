@@ -16,9 +16,22 @@ class JRubyStormJar extends JRubyJar {
     /** parent from which this task will inherit some configuration */
     JRubyStorm parentTask
 
+    /**
+     * Return the version of JRuby safe for usage in redstorm
+     */
+    @Override
+    String getJrubyVersion() {
+        final String inheritedVersion = super.getJrubyVersion()
+
+        /* if our parent has a default version that's 1.7.x, use it */
+        if (inheritedVersion.matches(/1.7.(\d+)/)) {
+            return inheritedVersion
+        }
+        /*  Default to 1.7.22 <https://github.com/jruby-gradle/redstorm/issues/11> */
+        return '1.7.22'
+    }
+
     String mainClass = REDSTORM_MAIN
-    /* Default to 1.7.22 <https://github.com/jruby-gradle/redstorm/issues/11> */
-    String jrubyVersion = '1.7.22'
 
     @Override
     String getConfiguration() {
