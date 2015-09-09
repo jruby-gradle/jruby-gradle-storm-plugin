@@ -98,6 +98,7 @@ class JRubyStorm extends DefaultTask {
 
         project.dependencies.add(localConfiguration.name, "org.apache.storm:storm-core:${stormVersion}")
         localConfiguration.extendsFrom configuration
+        localConfiguration.extendsFrom project.configurations.findByName(JRubyStormPlugin.CLASSPATH_CONFIGURATION)
     }
 
     /**
