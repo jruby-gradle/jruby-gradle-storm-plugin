@@ -16,8 +16,8 @@ class JRubyStormJar extends JRubyJar {
     JRubyStorm parentTask
 
     String mainClass = REDSTORM_MAIN
-    /* Default to 1.7.21 <https://github.com/jruby-gradle/redstorm/issues/11> */
-    String jrubyVersion = '1.7.21'
+    /* Default to 1.7.22 <https://github.com/jruby-gradle/redstorm/issues/11> */
+    String jrubyVersion = '1.7.22'
 
     @Override
     String getConfiguration() {
