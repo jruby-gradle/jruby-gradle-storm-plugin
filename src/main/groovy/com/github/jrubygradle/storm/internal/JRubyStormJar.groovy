@@ -31,11 +31,17 @@ class JRubyStormJar extends JRubyJar {
         return '1.7.22'
     }
 
-    String mainClass = REDSTORM_MAIN
+    @Override
+    String getMainClass() {
+        return REDSTORM_MAIN
+    }
 
     @Override
     String getConfiguration() {
-        return parentTask.configuration.name
+        if (parentTask) {
+            return parentTask.configuration.name
+        }
+        return JRubyStorm.DEFAULT_CONFIGURATION_NAME
     }
 
     JRubyStormJar() {
