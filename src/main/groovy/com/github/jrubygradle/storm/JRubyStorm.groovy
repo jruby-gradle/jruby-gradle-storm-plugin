@@ -74,10 +74,11 @@ class JRubyStorm extends DefaultTask {
     JRubyStorm() {
         super()
         configuration = project.configurations.maybeCreate(DEFAULT_CONFIGURATION_NAME)
-        this.group JRubyPlugin.TASK_GROUP_NAME
-        this.runTask = JRubyStormInternal.createRunTask(this.project, this)
-        this.assembleTask = JRubyStormInternal.createAssembleTask(this.project, this)
-        this.dependsOn assembleTask
+        runTask = JRubyStormInternal.createRunTask(this.project, this)
+        assembleTask = JRubyStormInternal.createAssembleTask(this.project, this)
+
+        dependsOn assembleTask
+        group JRubyPlugin.TASK_GROUP_NAME
 
         project.afterEvaluate { this.updateDependencies() }
     }

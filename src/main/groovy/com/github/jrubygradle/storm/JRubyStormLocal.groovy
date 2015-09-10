@@ -44,6 +44,7 @@ class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
     JRubyStormLocal() {
         super()
         super.setMain 'redstorm.TopologyLauncher'
+        description 'Execute the topology in "local" mode'
     }
 
     @Override

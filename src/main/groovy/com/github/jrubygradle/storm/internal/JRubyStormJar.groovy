@@ -41,6 +41,7 @@ class JRubyStormJar extends JRubyJar {
     JRubyStormJar() {
         super()
         appendix = ''
+        description 'Package a Storm topology jar'
 
         project.afterEvaluate {
             this.includeRedstorm()

@@ -142,6 +142,15 @@ class JRubyStormSpec extends Specification {
         then:
         project.configurations.findByName(JRubyStorm.DEFAULT_CONFIGURATION_NAME)
     }
+
+    @Issue('https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/19')
+    def "group should be set by default on the sub-tasks"() {
+        given:
+        JRubyStorm task = project.task('spock', type: JRubyStorm)
+
+        expect:
+        task.assembleTask.group == task.group
+    }
 }
 
 @Ignore("For some reason these are running with DEBUG log level and it won't turn off")
