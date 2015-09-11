@@ -21,14 +21,11 @@ class JRubyStormJar extends JRubyJar {
      */
     @Override
     String getJrubyVersion() {
-        final String inheritedVersion = super.getJrubyVersion()
-
-        /* if our parent has a default version that's 1.7.x, use it */
-        if (inheritedVersion.matches(/1.7.(\d+)/)) {
-            return inheritedVersion
+        if (embeddedJRubyVersion == null) {
+            /*  Default to 1.7.22 <https://github.com/jruby-gradle/redstorm/issues/11> */
+            return '1.7.22'
         }
-        /*  Default to 1.7.22 <https://github.com/jruby-gradle/redstorm/issues/11> */
-        return '1.7.22'
+        return embeddedJRubyVersion
     }
 
     @Override
