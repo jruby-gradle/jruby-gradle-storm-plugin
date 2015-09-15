@@ -54,7 +54,7 @@ class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
         super.setEnvironment getPreparedEnvironment(environment)
 
         if (parentTask) {
-            super.classpath parentTask.localConfiguration.asPath
+            super.classpath parentTask.localConfiguration
         }
 
         prepareDependencies(project)
