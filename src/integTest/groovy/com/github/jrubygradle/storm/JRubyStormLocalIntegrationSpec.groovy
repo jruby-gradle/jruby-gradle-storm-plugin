@@ -3,55 +3,82 @@ package com.github.jrubygradle.storm
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.BuildResult
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.*
 
 /**
  */
-class JRubyStormLocalIntegrationSpec extends Specification {
-    @Rule
-    final TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
-    String pluginDependencies
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.json")
-
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
-        }
-
-        pluginDependencies = pluginClasspathResource.text
-    }
-
+class JRubyStormLocalIntegrationSpec extends JRubyStormIntegrationSpecification {
     def "executing runJRubyStorm with no topology should error"() {
         given:
-        buildFile << """
-buildscript {
-    dependencies {
-        classpath files(${pluginDependencies})
-    }
-}
-apply plugin: 'com.github.jruby-gradle.storm'
-
-repositories {
-    jcenter()
-    mavenLocal()
-}
-
-jrubyStorm {
-}
-    """
+        applyPluginTo(buildFile)
+        buildFile << "jrubyStorm { topology 'foo.rb' }"
 
         when:
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withArguments('runJRubyStorm')
-                .build()
+                .buildAndFail()
 
         then:
-        result.task(":runJRubyStorm").outcome == TaskOutcome.FAILURE
+        result.task(":runJRubyStorm").outcome == TaskOutcome.FAILED
+    }
+
+    def "running in local mode with a basic topology"() {
+        given:
+        applyPluginTo(buildFile)
+        buildFile << "jrubyStorm { topology 'topo.rb' }"
+
+        File topologyFile = testProjectDir.newFile('topo.rb')
+        topologyFile << """
+require 'red_storm'
+
+class HelloWorldSpout < RedStorm::DSL::Spout
+  on_init {@words = ["hello", "world"]}
+  on_send {@words.shift unless @words.empty?}
+end
+
+class HelloWorldBolt < RedStorm::DSL::Bolt
+  on_receive :emit => false do |tuple|
+    puts tuple
+  end
+end
+
+class HelloWorldTopology < RedStorm::DSL::Topology
+  spout HelloWorldSpout do
+    output_fields :word
+  end
+
+  bolt HelloWorldBolt do
+    source HelloWorldSpout, :global
+  end
+
+  configure do
+    debug false
+    max_task_parallelism 4
+    num_workers 1
+    max_spout_pending 1000
+  end
+
+  on_submit do
+    Thread.start {
+        sleep 20
+        cluster.shutdown
+    }
+  end
+end
+"""
+
+        when: 'runJRubyStorm is invoked'
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('runJRubyStorm')
+                .build()
+
+        then: 'the task should succeed'
+        result.task(":runJRubyStorm").outcome == TaskOutcome.SUCCESS
+
+        and: "it should have logged hello world"
+        result.standardOutput.contains('{"word"=>"hello"}')
+        result.standardOutput.contains('{"word"=>"world"}')
     }
 }
