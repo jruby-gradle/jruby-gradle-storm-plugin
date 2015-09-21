@@ -23,11 +23,7 @@ class JRubyStormLocalIntegrationSpec extends JRubyStormIntegrationSpecification 
         result.task(":runJRubyStorm").outcome == TaskOutcome.FAILED
     }
 
-    def "running in local mode with a basic topology"() {
-        given:
-        applyPluginTo(buildFile)
-        buildFile << "jrubyStorm { topology 'topo.rb' }"
-
+    File createHelloWorldTopology() {
         File topologyFile = testProjectDir.newFile('topo.rb')
         topologyFile << """
 require 'red_storm'
@@ -67,6 +63,14 @@ class HelloWorldTopology < RedStorm::DSL::Topology
   end
 end
 """
+        return topologyFile
+    }
+
+    def "running in local mode with a basic topology"() {
+        given:
+        applyPluginTo(buildFile)
+        File topo = createHelloWorldTopology()
+        buildFile << "jrubyStorm { topology '${topo.absolutePath}' }"
 
         when: 'runJRubyStorm is invoked'
         BuildResult result = GradleRunner.create()
@@ -80,5 +84,28 @@ end
         and: "it should have logged hello world"
         result.standardOutput.contains('{"word"=>"hello"}')
         result.standardOutput.contains('{"word"=>"world"}')
+    }
+
+    @Issue('https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/29')
+    def "JRubyStormLocal tasks should not require a parent task"() {
+        given:
+        applyPluginTo(buildFile)
+        File topo = createHelloWorldTopology()
+
+        buildFile << """
+import com.github.jrubygradle.storm.JRubyStormLocal
+task run(type: JRubyStormLocal) {
+    topology '${topo.absolutePath}'
+}
+"""
+
+        when: 'the run task is invoked'
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('run')
+                .build()
+
+        then: 'the task should succeed'
+        result.task(":run").outcome == TaskOutcome.SUCCESS
     }
 }
