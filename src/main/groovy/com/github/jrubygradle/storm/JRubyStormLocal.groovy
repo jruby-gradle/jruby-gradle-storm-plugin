@@ -56,6 +56,12 @@ class JRubyStormLocal extends JavaExec implements JRubyExecTraits {
         if (parentTask) {
             super.classpath parentTask.localConfiguration
         }
+        else {
+            /* make sure we always have some form of valid classpath set, see
+             * also: https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/29
+             */
+            super.classpath project.configurations.findByName(getConfiguration())
+        }
 
         prepareDependencies(project)
         super.exec()

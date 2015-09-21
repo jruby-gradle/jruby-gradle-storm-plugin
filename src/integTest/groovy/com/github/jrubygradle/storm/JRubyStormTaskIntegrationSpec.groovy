@@ -1,49 +1,32 @@
 package com.github.jrubygradle.storm
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.BuildResult
-import org.gradle.api.artifacts.Dependency
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.*
 
 
 /** Integration tests which actually execute Gradle via the GradleTestKit */
-class JRubyStormTestKitSpec extends Specification {
-    @Rule
-    final TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
-    String pluginDependencies
+class JRubyStormTestKitSpec extends JRubyStormIntegrationSpecification {
+    def "executing the task without a topolgoy should error"() {
+        given:
+        applyPluginTo(buildFile)
+        buildFile << 'jrubyStorm { }'
 
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.json")
+        when:
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('jrubyStorm')
+                .buildAndFail()
 
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
-        }
-
-        pluginDependencies = pluginClasspathResource.text
+        then:
+        result.task(":jrubyStorm").outcome == TaskOutcome.FAILED
     }
 
     def "executing the assemble task produces a jar artifact"() {
         given:
+        applyPluginTo(buildFile)
         buildFile << """
-buildscript {
-    dependencies {
-        classpath files(${pluginDependencies})
-    }
-}
-apply plugin: 'com.github.jruby-gradle.storm'
-
-repositories {
-    jcenter()
-    mavenLocal()
-}
-
 jrubyStorm {
 }
     """
