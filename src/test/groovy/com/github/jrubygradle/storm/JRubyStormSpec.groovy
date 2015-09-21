@@ -151,6 +151,20 @@ class JRubyStormSpec extends Specification {
         expect:
         task.assembleTask.group == task.group
     }
+
+    @Issue('https://github.com/jruby-gradle/jruby-gradle-storm-plugin/issues/31')
+    def "assemble task should depend on whatever the parent dependsOn"() {
+        given:
+        JRubyStorm task = project.task('spock', type: JRubyStorm)
+        Task otherTask = project.task('dependentTask')
+
+        when:
+        task.dependsOn otherTask
+
+        then:
+        task.dependsOn.contains(otherTask)
+        task.assembleTask.dependsOn.contains(otherTask)
+    }
 }
 
 @Ignore("For some reason these are running with DEBUG log level and it won't turn off")

@@ -37,6 +37,18 @@ class JRubyStorm extends DefaultTask {
         return assembleTask
     }
 
+    /**
+     *  Apply a task dependency to this task and its child tasks
+     *
+     * @param dependencies
+     * @return this task
+     */
+    Task dependsOn(Object... dependencies) {
+        assembleTask?.dependsOn(dependencies)
+        runTask?.dependsOn(dependencies)
+        return super.dependsOn(dependencies)
+    }
+
     /** Path (absolute or relative) to the Ruby file containing the topology */
     @Input
     String topology
@@ -77,7 +89,7 @@ class JRubyStorm extends DefaultTask {
         runTask = JRubyStormInternal.createRunTask(this.project, this)
         assembleTask = JRubyStormInternal.createAssembleTask(this.project, this)
 
-        dependsOn assembleTask
+        super.dependsOn(assembleTask)
         group JRubyPlugin.TASK_GROUP_NAME
 
         project.afterEvaluate { this.updateDependencies() }
