@@ -11,7 +11,7 @@ buildscript {
          * use if you want to use this build.gradle outside of gradleTest
          */
         classpath 'com.github.jruby-gradle:jruby-gradle-storm-plugin:%%VERSION%%'
-        classpath 'com.github.jruby-gradle:jruby-gradle-jar-plugin:1.0.4+'
+        classpath 'com.github.jruby-gradle:jruby-gradle-jar-plugin:1.1.4+'
     }
 }
 
