@@ -76,8 +76,9 @@ test {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar) {
     classifier = 'sources'
+    dependsOn classes
     from sourceSets.main.allSource
 }
 
@@ -112,6 +113,5 @@ bintray {
     }
 }
 bintrayUpload.dependsOn assemble
-install.dependsOn check, assemble
 
 // vim: ft=groovy
